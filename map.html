@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Luke Eliason — Map</title>
+  <link rel="icon" type="image/jpeg" href="favicon.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --orange: #FF4F00; --bg: #faf9f7; }
+    body {
+      background: var(--bg);
+      color: #000;
+      font-family: 'Baskerville', 'Baskerville Old Face', 'Libre Baskerville', Georgia, serif;
+      font-size: 18px;
+      line-height: 1.7;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 0 5rem;
+    }
+    .banner {
+      width: 100%;
+      height: 220px;
+      overflow: hidden;
+      margin-bottom: 3rem;
+    }
+    .banner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+    .content { padding: 0 2rem; }
+    #site-header {
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #000;
+    }
+    #site-header h1 {
+      font-size: 1.9rem;
+      font-weight: normal;
+      letter-spacing: 0.01em;
+      margin-bottom: 0.2rem;
+    }
+    #site-header .subtitle {
+      font-size: 1rem;
+      font-variant: small-caps;
+      letter-spacing: 0.04em;
+    }
+    #site-header .typeface-note { font-size: 0.8rem; margin-top: 0.3rem; }
+    nav { margin-bottom: 3.5rem; }
+    nav a {
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #000;
+      text-decoration: none;
+      margin-right: 1.75rem;
+    }
+    nav a:hover, nav a.active {
+      background: var(--orange);
+      color: #fff;
+      padding: 0 3px;
+    }
+    section { margin-bottom: 4rem; }
+    section h2 {
+      font-size: 1rem;
+      font-weight: normal;
+      font-variant: small-caps;
+      letter-spacing: 0.04em;
+      margin-bottom: 1rem;
+    }
+    section p { margin-bottom: 0.9rem; }
+    a { color: #000; text-decoration: underline; text-underline-offset: 2px; }
+    a:hover { background: var(--orange); color: #fff; text-decoration: none; padding: 0 2px; }
+    #map-description { font-size: 0.95rem; margin-bottom: 1.5rem; }
+    #globe-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+    #globe-hint {
+      font-size: 0.78rem;
+      color: #999;
+      text-align: center;
+      margin-top: 0.6rem;
+    }
+    #globe-container svg { cursor: grab; }
+    #globe-container svg:active { cursor: grabbing; }
+    .city-dot { fill: #000; stroke: none; cursor: pointer; }
+    .city-dot:hover { fill: var(--orange); }
+    /* Lightbox */
+    #lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 2rem;
+    }
+    #lightbox.open { display: flex; }
+    #lightbox img {
+      max-width: min(700px, 90vw);
+      max-height: 70vh;
+      object-fit: contain;
+      display: block;
+    }
+    #lightbox-caption {
+      color: #fff;
+      font-family: 'Baskerville', 'Baskerville Old Face', Georgia, serif;
+      font-variant: small-caps;
+      letter-spacing: 0.06em;
+      font-size: 1.05rem;
+      margin-top: 1rem;
+      text-align: center;
+    }
+    #lightbox-close {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.5rem;
+      color: #aaa;
+      font-size: 1.5rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      line-height: 1;
+    }
+    #lightbox-close:hover { color: var(--orange); }
+    footer {
+      position: fixed;
+      bottom: 1.25rem;
+      left: 1.75rem;
+      font-size: 0.75rem;
+      color: #999;
+    }
+    @media (max-width: 480px) {
+      .content { padding: 0 1.25rem; }
+      .banner { margin-bottom: 2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="banner">
+    <img src="banner.jpg" alt="Banner photo" />
+  </div>
+  <div class="content">
+    <header id="site-header">
+      <h1><a href="index.html" style="text-decoration:none;color:#000;">Luke Eliason</a></h1>
+      <p class="subtitle">researcher in political science</p>
+      <p class="typeface-note"><a href="https://en.wikipedia.org/wiki/Baskerville" target="_blank" rel="noopener noreferrer">[About this typeface]</a></p>
+    </header>
+    <nav>
+      <a href="about.html">About</a>
+      <a href="cv.html">CV</a>
+      <a href="map.html" class="active">Map</a>
+    </nav>
+    <section id="map">
+      <h2>map</h2>
+      <p id="map-description">Click to see photos from my travels</p>
+      <div id="globe-container"></div>
+      <p id="globe-hint">drag to rotate &middot; scroll to zoom</p>
+    </section>
+  </div>
+  <footer><p>updated 8-14-26</p></footer>
+
+  <div id="lightbox" role="dialog" aria-modal="true">
+    <button id="lightbox-close" aria-label="Close">&times;</button>
+    <img id="lightbox-img" src="" alt="" />
+    <p id="lightbox-caption"></p>
+  </div>
+
+  <script>
+    const CITIES = [
+      { name: "bali, indonesia",                coords: [115.1889, -8.4095],   photo: "photos/bali.png" },
+      { name: "banda aceh, indonesia",           coords: [95.3238,  5.5483],   photo: "photos/banda_aceh.png" },
+      { name: "borobudur, indonesia",            coords: [110.2038, -7.6079],  photo: "photos/borobudur.png" },
+      { name: "casablanca, morocco",             coords: [-7.5898,  33.5731],  photo: "photos/casablanca.png" },
+      { name: "washington d.c., united states",  coords: [-77.0369, 38.9072],  photo: "photos/dc.png" },
+      { name: "doha, qatar",                     coords: [51.5310,  25.2854],  photo: "photos/doha.png" },
+      { name: "fez, morocco",                    coords: [-5.0003,  34.0181],  photo: "photos/fez.png" },
+      { name: "glenstone, united states",        coords: [-77.1875, 39.0518],  photo: "photos/glenstone.png" },
+      { name: "gunung leuser, indonesia",        coords: [97.4000,   3.7500],  photo: "photos/gunung_leuser.png" },
+      { name: "harpers ferry, united states",    coords: [-77.7297, 39.3254],  photo: "photos/harpers_ferry.png" },
+      { name: "ijen, indonesia",                 coords: [114.2423, -8.0582],  photo: "photos/ijen.png" },
+      { name: "istanbul, turkey",                coords: [28.9784,  41.0082],  photo: "photos/istanbul.png" },
+      { name: "jakarta, indonesia",              coords: [106.8650, -6.2088],  photo: "photos/jakarta.png" },
+      { name: "london, united kingdom",          coords: [-0.1276,  51.5074],  photo: "photos/london.png" },
+      { name: "new york city, united states",    coords: [-74.0060, 40.7128],  photo: "photos/nyc.png" },
+      { name: "paris, france",                   coords: [2.3522,   48.8566],  photo: "photos/paris.png" },
+      { name: "rabat, morocco",                  coords: [-6.8498,  34.0209],  photo: "photos/rabat.png" },
+      { name: "riyadh, saudi arabia",            coords: [46.6753,  24.6877],  photo: "photos/riyadh.png" },
+      { name: "mount tambora, indonesia",        coords: [117.9953, -8.2461],  photo: "photos/tambora.png" },
+      { name: "tangier, morocco",                coords: [-5.7993,  35.7595],  photo: "photos/tangier.png" },
+      { name: "volubilis, morocco",              coords: [-5.5547,  34.0724],  photo: "photos/volubilis.png" },
+      { name: "yerevan, armenia",                coords: [44.5152,  40.1792],  photo: "photos/yerevan.png" },
+    ];
+
+    const container = document.getElementById("globe-container");
+    const width  = Math.min(560, container.offsetWidth);
+    const height = width;
+    const baseRadius = width * 0.46;
+    let currentScale = baseRadius;
+
+    const projection = d3.geoOrthographic()
+      .scale(currentScale)
+      .translate([width / 2, height / 2])
+      .clipAngle(90)
+      .rotate([30, -20]);
+
+    const path = d3.geoPath().projection(projection);
+
+    const svg = d3.select("#globe-container")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    // Clip to sphere so zoom doesn't bleed outside
+    svg.append("defs").append("clipPath")
+      .attr("id", "sphere-clip")
+      .append("circle")
+      .attr("cx", width / 2)
+      .attr("cy", height / 2)
+      .attr("r", baseRadius);
+
+    // Sphere background
+    const sphereBg = svg.append("circle")
+      .attr("cx", width / 2)
+      .attr("cy", height / 2)
+      .attr("r", baseRadius)
+      .attr("fill", "#f4f3f0")
+      .attr("stroke", "#aaa")
+      .attr("stroke-width", 0.5);
+
+    // Graticule
+    const graticule = d3.geoGraticule().step([20, 20]);
+    const graticuleEl = svg.append("path")
+      .datum(graticule())
+      .attr("d", path)
+      .attr("fill", "none")
+      .attr("stroke", "#bbb")
+      .attr("stroke-width", 0.5);
+
+    // Land
+    const landEl = svg.append("path")
+      .attr("fill", "none")
+      .attr("stroke", "#000")
+      .attr("stroke-width", 0.8);
+
+    const cityGroup = svg.append("g").attr("id", "cities");
+
+    fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
+      .then(r => r.json())
+      .then(world => {
+        const land = topojson.feature(world, world.objects.land);
+        landEl.datum(land).attr("d", path);
+        drawCities();
+      });
+
+    function drawCities() {
+      cityGroup.selectAll("*").remove();
+      CITIES.forEach(city => {
+        const angle = d3.geoDistance(city.coords, [
+          -projection.rotate()[0],
+          -projection.rotate()[1]
+        ]);
+        if (angle >= Math.PI / 2) return;
+        const proj = projection(city.coords);
+        if (!proj) return;
+        cityGroup.append("circle")
+          .attr("class", "city-dot")
+          .attr("cx", proj[0])
+          .attr("cy", proj[1])
+          .attr("r", Math.max(3, 5 * (currentScale / baseRadius)))
+          .on("click", () => openLightbox(city));
+      });
+    }
+
+    function redraw() {
+      graticuleEl.attr("d", path);
+      landEl.attr("d", path);
+      // update sphere clip and background radius to match scale
+      const r = projection.scale();
+      sphereBg.attr("r", r);
+      svg.select("#sphere-clip circle").attr("r", r);
+      drawCities();
+    }
+
+    // ── Drag to rotate ──
+    let dragStart = null, rotateStart = null;
+    svg.call(d3.drag()
+      .on("start", event => {
+        dragStart   = [event.x, event.y];
+        rotateStart = projection.rotate();
+      })
+      .on("drag", event => {
+        if (!dragStart) return;
+        const sensitivity = 0.3;
+        projection.rotate([
+          rotateStart[0] + (event.x - dragStart[0]) * sensitivity,
+          rotateStart[1] - (event.y - dragStart[1]) * sensitivity
+        ]);
+        redraw();
+      })
+    );
+
+    // ── Scroll to zoom ──
+    svg.call(d3.zoom()
+      .scaleExtent([0.5, 8])
+      .on("zoom", event => {
+        currentScale = baseRadius * event.transform.k;
+        projection.scale(currentScale);
+        redraw();
+      })
+    );
+
+    // Lightbox
+    function openLightbox(city) {
+      document.getElementById("lightbox-img").src = city.photo;
+      document.getElementById("lightbox-img").alt = city.name;
+      document.getElementById("lightbox-caption").textContent = city.name;
+      document.getElementById("lightbox").classList.add("open");
+    }
+    document.getElementById("lightbox-close").addEventListener("click", () => {
+      document.getElementById("lightbox").classList.remove("open");
+    });
+    document.getElementById("lightbox").addEventListener("click", e => {
+      if (e.target === document.getElementById("lightbox"))
+        document.getElementById("lightbox").classList.remove("open");
+    });
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") document.getElementById("lightbox").classList.remove("open");
+    });
+  </script>
+</body>
+</html>
