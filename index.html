@@ -4,46 +4,40 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="icon" type="image/png" href="favicon.png" />
-
-  <!-- ============================================================
-       SITE TITLE — Update this to change the browser tab name
-       ============================================================ -->
   <title>Luke Eliason</title>
 
-  <!-- Fonts: Playfair Display (headings) + DM Sans (body) + Amiri (Arabic) -->
+  <link rel="icon" type="image/jpeg" href="favicon.jpg" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:         #F7F5F2;
-      --text:       #2b222f;
-      --muted:      #6B6860;
-      --rule:       #D9D5CE;
-      --accent:     #5a3759;
-      --link-hover: #1A1917;
+      --orange: #FF4F00;
+      --bg:     #faf9f7;
     }
+
+    html { scroll-behavior: smooth; }
 
     body {
       background: var(--bg);
-      color: var(--text);
-      font-family: 'Baskerville', serif;
-      font-weight: 300;
-      font-size: 17px;
-      line-height: 1.75;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 0 0 6rem;
+      color: #000;
+      font-family: 'Baskerville', 'Baskerville Old Face', 'Libre Baskerville', Georgia, serif;
+      font-size: 18px;
+      line-height: 1.7;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 0 5rem;
     }
 
     /* ============================================================
-       BANNER PHOTO — sits outside <main> so it spans the full page.
+       BANNER PHOTO — change "banner.jpg" to your image filename.
        height: controls how tall the banner is.
        object-position: change to "top" or "bottom" to reframe crop.
        ============================================================ */
@@ -51,8 +45,7 @@
       width: 100%;
       height: 220px;
       overflow: hidden;
-      margin-bottom: 4rem;
-      flex-shrink: 0;
+      margin-bottom: 3rem;
     }
 
     .banner img {
@@ -63,228 +56,504 @@
       display: block;
     }
 
-    main {
-      width: 100%;
-      max-width: 580px;
+    .content {
       padding: 0 2rem;
     }
 
-    /* ── Header ── */
-    header {
+    /* ── Site header ── */
+    #site-header {
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #000;
+    }
+
+    #site-header h1 {
+      font-size: 1.9rem;
+      font-weight: normal;
+      letter-spacing: 0.01em;
+      margin-bottom: 0.2rem;
+      color: #000;
+    }
+
+    #site-header .subtitle {
+      font-size: 1rem;
+      font-variant: small-caps;
+      letter-spacing: 0.04em;
+      color: #000;
+      font-style: normal;
+    }
+
+    #site-header .typeface-note {
+      font-size: 0.8rem;
+      margin-top: 0.3rem;
+    }
+
+    /* ── Nav ── */
+    nav {
       margin-bottom: 3.5rem;
     }
 
-    /* ============================================================
-       YOUR NAME — Change the text in <h1> in the HTML below
-       ============================================================ */
-    h1 {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-weight: 400;
-      font-size: clamp(2.2rem, 6vw, 3rem);
-      letter-spacing: -0.01em;
-      line-height: 1.15;
-      color: var(--text);
-      margin-bottom: 0.4rem;
-    }
-
-    /* ============================================================
-       YOUR ROLE/TITLE — Change the text in <p class="role"> below
-       ============================================================ */
-    .role {
-      font-size: 0.95rem;
-      font-weight: 400;
-      color: var(--muted);
-      letter-spacing: 0.06em;
+    nav a {
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
+      color: #000;
+      text-decoration: none;
+      margin-right: 1.75rem;
     }
 
-    /* ── Section divider ── */
-    hr {
-      border: none;
-      border-top: 1px solid var(--rule);
-      margin: 2.25rem 0;
+    nav a:hover {
+      background: var(--orange);
+      color: #fff;
+      padding: 0 3px;
     }
 
     /* ── Sections ── */
     section {
-      margin-bottom: 2.5rem;
+      margin-bottom: 4rem;
     }
 
     section h2 {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-weight: 400;
-      font-size: 1.05rem;
+      font-size: 1rem;
+      color: #000;
+      font-weight: normal;
+      font-variant: small-caps;
       letter-spacing: 0.04em;
-      color: var(--muted);
-      text-transform: uppercase;
-      margin-bottom: 0.9rem;
+      margin-bottom: 1rem;
     }
 
-    /* ============================================================
-       ABOUT TEXT — Edit the <p> tags inside <section id="about">
-       You can add or remove paragraphs freely.
-       ============================================================ */
     section p {
-      color: var(--text);
-      margin-bottom: 0.85rem;
+      margin-bottom: 0.9rem;
+      color: #000;
     }
     section p:last-child { margin-bottom: 0; }
 
-    /* ── List spacing ── */
     section ul {
-      padding-left: 1.25rem;
-      margin-bottom: 0.85rem;
+      padding-left: 1.2rem;
+      margin-bottom: 0.9rem;
     }
     section li {
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.25rem;
+      color: #000;
     }
 
-    /* ── Arabic text ── */
+    /* ── Links ── */
+    a {
+      color: #000;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    a:hover {
+      background: var(--orange);
+      color: #fff;
+      text-decoration: none;
+      padding: 0 2px;
+    }
+
+    /* ── Arabic ── */
     .arabic {
       font-family: 'Amiri', serif;
       direction: rtl;
       text-align: right;
-      font-size: 1.15rem;
-      line-height: 2;
-    }
-
-    /* ── Links section ── */
-    .links {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-    }
-
-    /* ============================================================
-       LINKS — Edit the <a> tags in <ul class="links"> below.
-       To add a link, copy one <li> block and change the href + label.
-       To remove a link, delete the whole <li> block.
-       ============================================================ */
-    .links a {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.55rem;
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 400;
-      font-size: 1rem;
-      transition: color 0.15s ease, gap 0.2s ease;
-    }
-    .links a:hover {
-      color: var(--link-hover);
-      gap: 0.75rem;
-    }
-    .links a .arrow {
       font-size: 1.1rem;
+      line-height: 2.1;
+      margin-top: 0.5rem;
+      color: #000;
+    }
+
+    /* ── Map ── */
+    #map-description {
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+      color: #000;
+    }
+
+    #globe-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    #globe-container svg {
+      cursor: grab;
+    }
+    #globe-container svg:active {
+      cursor: grabbing;
+    }
+
+    .city-dot {
+      fill: #000;
+      stroke: none;
+      cursor: pointer;
+    }
+    .city-dot:hover { fill: var(--orange); }
+
+    /* ── Lightbox ── */
+    #lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 2rem;
+    }
+    #lightbox.open { display: flex; }
+
+    #lightbox img {
+      max-width: min(700px, 90vw);
+      max-height: 70vh;
+      object-fit: contain;
+      display: block;
+    }
+
+    #lightbox-caption {
+      color: #fff;
+      font-family: 'Baskerville', 'Baskerville Old Face', Georgia, serif;
+      font-variant: small-caps;
+      letter-spacing: 0.06em;
+      font-size: 1.05rem;
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    #lightbox-close {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.5rem;
+      color: #aaa;
+      font-size: 1.5rem;
+      cursor: pointer;
+      background: none;
+      border: none;
       line-height: 1;
-      transition: transform 0.2s ease;
     }
-    .links a:hover .arrow {
-      transform: translateX(3px);
-    }
+    #lightbox-close:hover { color: var(--orange); }
 
     /* ── Footer ── */
     footer {
-      margin-top: 4rem;
-      font-size: 0.8rem;
-      color: var(--rule);
-      text-align: center;
+      position: fixed;
+      bottom: 1.25rem;
+      left: 1.75rem;
+      font-size: 0.75rem;
+      color: #999;
     }
 
     /* ── Responsive ── */
     @media (max-width: 480px) {
-      body { padding: 0 0 5rem; }
-      main { padding: 0 1.5rem; }
-      .banner { margin-bottom: 3rem; }
+      .content { padding: 0 1.25rem; }
+      .banner { margin-bottom: 2rem; }
     }
   </style>
 </head>
 <body>
 
-  <!-- ============================================================
-       BANNER PHOTO — lives outside <main> so it spans the full width.
-       To swap the image, change "banner.jpg" to your filename.
-       To remove the banner entirely, delete this whole <div> block.
-       ============================================================ -->
   <div class="banner">
     <img src="banner.jpg" alt="Banner photo" />
   </div>
 
-  <main>
+  <div class="content">
 
-    <!-- ============================================================
-         HEADER: Your name and role
-         ============================================================ -->
-    <header>
+    <header id="site-header">
       <h1>Luke Eliason</h1>
+      <p class="subtitle">researcher in political science</p>
+      <p class="typeface-note"><a href="https://en.wikipedia.org/wiki/Baskerville" target="_blank" rel="noopener noreferrer">[About this typeface]</a></p>
     </header>
 
-    <hr />
+    <nav>
+      <a href="#about">About</a>
+      <a href="#cv">CV</a>
+      <a href="#map">Map</a>
+    </nav>
 
-    <!-- ============================================================
-         ABOUT: Edit or add paragraphs here to describe yourself.
-         ============================================================ -->
     <section id="about">
-
+      <h2>about</h2>
       <p>Political scientist with research interests in:</p>
-
       <ul>
         <li>Political legitimacy and revolution</li>
         <li>Extremism</li>
         <li>Authoritarianism</li>
         <li>Middle Eastern politics</li>
       </ul>
-
       <p>
         Aside from my research, I spend my time cooking, running, or reading.
         I am an avid reader of Wikipedia, where I spend much of my free time reading about history, art,
-        or anything else that catches my interest. <a href="https://en.wikipedia.org/wiki/Portrait_of_the_Four_Tetrarchs">Here</a> is an article I found interesting recently and that you might find interesting as well.
+        or anything else that catches my interest. <a href="https://en.wikipedia.org/wiki/Portrait_of_the_Four_Tetrarchs">Here</a> is an article I found interesting.
       </p>
-
       <p class="arabic" lang="ar">
         خذ وقتك في هنا وشكرا لزرر
       </p>
-
     </section>
 
-    <hr />
-
-    <!-- ============================================================
-         LINKS: Add, remove, or edit entries here.
-         Replace the href="#" values with your real URLs.
-         ============================================================ -->
-    <section id="links">
-      <ul class="links">
-
-        <!-- CV — replace href with the URL or path to your CV file -->
-        <li>
-          <a href="cv.pdf" target="_blank" rel="noopener noreferrer">
-            <span class="arrow">&#9642;</span> CV
-          </a>
-        </li>
-
-        <!-- LinkedIn — replace href with your LinkedIn profile URL -->
-        <li>
-          <a href="https://www.linkedin.com/in/lukeeliason" target="_blank" rel="noopener noreferrer">
-            <span class="arrow">&#9642;</span> LinkedIn
-          </a>
-        </li>
-
-        <!-- ── Add more links below by copying a <li> block ── -->
-
-      </ul>
+    <section id="cv">
+      <h2>cv</h2>
+      <p>My full curriculum vitae is available as a PDF.</p>
+      <p>
+        <a href="cv.pdf" target="_blank" rel="noopener noreferrer">Download CV (PDF)</a>
+        <a href="https://www.linkedin.com/in/lukeeliason" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <p>Contact me at eliasonluke@gmail.com</p>
+      </p>
     </section>
 
-    <hr />
+    <section id="map">
+      <h2>map</h2>
+      <!-- ============================================================
+           MAP DESCRIPTION — Edit this to describe what the map shows.
+           ============================================================ -->
+      <p id="map-description">
+        I enjoy film photography and traveling. Browse a selection of photos I've taken in places I've been.
+      </p>
+      <div id="globe-container"></div>
+    </section>
 
-    <!-- ============================================================
-         FOOTER: Edit or remove the footer text as you like.
-         ============================================================ -->
-    <footer>
-      <p>Luke Eliason &mdash; updated May 2026</p>
-    </footer>
+  </div>
 
-  </main>
+  <footer>
+    <p>updated 8-14-26</p>
+  </footer>
+
+  <div id="lightbox" role="dialog" aria-modal="true">
+    <button id="lightbox-close" aria-label="Close">&times;</button>
+    <img id="lightbox-img" src="" alt="" />
+    <p id="lightbox-caption"></p>
+  </div>
+
+  <script>
+    const CITIES = [
+  {
+    name: "bali, indonesia",
+    coords: [115.1889, -8.4095],
+    photo: "photos/bali.png"
+  },
+  {
+    name: "banda aceh, indonesia",
+    coords: [95.3238, 5.5483],
+    photo: "photos/banda_aceh.png"
+  },
+  {
+    name: "borobudur, indonesia",
+    coords: [110.2038, -7.6079],
+    photo: "photos/borobudur.png"
+  },
+  {
+    name: "casablanca, morocco",
+    coords: [-7.5898, 33.5731],
+    photo: "photos/casablanca.png"
+  },
+  {
+    name: "washington d.c., united states",
+    coords: [-77.0369, 38.9072],
+    photo: "photos/dc.png"
+  },
+  {
+    name: "doha, qatar",
+    coords: [51.5310, 25.2854],
+    photo: "photos/doha.png"
+  },
+  {
+    name: "fez, morocco",
+    coords: [-5.0003, 34.0181],
+    photo: "photos/fez.png"
+  },
+  {
+    name: "glenstone, united states",
+    coords: [-77.1875, 39.0518],
+    photo: "photos/glenstone.png"
+  },
+  {
+    name: "gunung leuser, indonesia",
+    coords: [97.4000, 3.7500],
+    photo: "photos/gunung_leuser.png"
+  },
+  {
+    name: "harpers ferry, united states",
+    coords: [-77.7297, 39.3254],
+    photo: "photos/harpers_ferry.png"
+  },
+  {
+    name: "ijen, indonesia",
+    coords: [114.2423, -8.0582],
+    photo: "photos/ijen.png"
+  },
+  {
+    name: "istanbul, turkey",
+    coords: [28.9784, 41.0082],
+    photo: "photos/istanbul.png"
+  },
+  {
+    name: "jakarta, indonesia",
+    coords: [106.8650, -6.2088],
+    photo: "photos/jakarta.png"
+  },
+  {
+    name: "london, united kingdom",
+    coords: [-0.1276, 51.5074],
+    photo: "photos/london.png"
+  },
+  {
+    name: "new york city, united states",
+    coords: [-74.0060, 40.7128],
+    photo: "photos/nyc.png"
+  },
+  {
+    name: "paris, france",
+    coords: [2.3522, 48.8566],
+    photo: "photos/paris.png"
+  },
+  {
+    name: "rabat, morocco",
+    coords: [-6.8498, 34.0209],
+    photo: "photos/rabat.png"
+  },
+  {
+    name: "riyadh, saudi arabia",
+    coords: [46.6753, 24.6877],
+    photo: "photos/riyadh.png"
+  },
+  {
+    name: "mount tambora, indonesia",
+    coords: [117.9953, -8.2461],
+    photo: "photos/tambora.png"
+  },
+  {
+    name: "tangier, morocco",
+    coords: [-5.7993, 35.7595],
+    photo: "photos/tangier.png"
+  },
+  {
+    name: "volubilis, morocco",
+    coords: [-5.5547, 34.0724],
+    photo: "photos/volubilis.png"
+  },
+  {
+    name: "yerevan, armenia",
+    coords: [44.5152, 40.1792],
+    photo: "photos/yerevan.png"
+  },
+];
+
+    // ── Globe setup ──
+    const container = document.getElementById("globe-container");
+    const width  = Math.min(560, container.offsetWidth);
+    const height = width;
+    const radius = width * 0.46;
+
+    const projection = d3.geoOrthographic()
+      .scale(radius)
+      .translate([width / 2, height / 2])
+      .clipAngle(90)
+      .rotate([30, -20]);
+
+    const path = d3.geoPath().projection(projection);
+
+    const svg = d3.select("#globe-container")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    // Sphere background
+    svg.append("circle")
+      .attr("cx", width / 2)
+      .attr("cy", height / 2)
+      .attr("r", radius)
+      .attr("fill", "#f4f3f0")
+      .attr("stroke", "#aaa")
+      .attr("stroke-width", 0.5);
+
+    // Graticule grid lines
+    const graticule = d3.geoGraticule().step([20, 20]);
+    const graticuleEl = svg.append("path")
+      .datum(graticule())
+      .attr("d", path)
+      .attr("fill", "none")
+      .attr("stroke", "#bbb")
+      .attr("stroke-width", 0.5);
+
+    // Land outlines (continents + islands, no country borders)
+    const landEl = svg.append("path")
+      .attr("fill", "none")
+      .attr("stroke", "#000")
+      .attr("stroke-width", 0.8);
+
+    const cityGroup = svg.append("g").attr("id", "cities");
+
+    // Load topojson and draw land as a single merged shape
+    fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
+      .then(r => r.json())
+      .then(world => {
+        // topojson.merge gives one unified landmass — no internal country lines
+        const land = topojson.feature(world, world.objects.land);
+        landEl.datum(land).attr("d", path);
+        drawCities();
+      });
+
+    function drawCities() {
+      cityGroup.selectAll("*").remove();
+      CITIES.forEach(city => {
+        const angle = d3.geoDistance(city.coords, [
+          -projection.rotate()[0],
+          -projection.rotate()[1]
+        ]);
+        if (angle >= Math.PI / 2) return;
+        const proj = projection(city.coords);
+        if (!proj) return;
+        cityGroup.append("circle")
+          .attr("class", "city-dot")
+          .attr("cx", proj[0])
+          .attr("cy", proj[1])
+          .attr("r", 5)
+          .on("click", () => openLightbox(city));
+      });
+    }
+
+    // Drag to rotate
+    let dragStart   = null;
+    let rotateStart = null;
+
+    svg.call(d3.drag()
+      .on("start", event => {
+        dragStart   = [event.x, event.y];
+        rotateStart = projection.rotate();
+      })
+      .on("drag", event => {
+        if (!dragStart) return;
+        const dx = event.x - dragStart[0];
+        const dy = event.y - dragStart[1];
+        projection.rotate([
+          rotateStart[0] + dx * 0.3,
+          rotateStart[1] - dy * 0.3
+        ]);
+        graticuleEl.attr("d", path);
+        landEl.attr("d", path);
+        drawCities();
+      })
+    );
+
+    // Lightbox
+    function openLightbox(city) {
+      document.getElementById("lightbox-img").src = city.photo;
+      document.getElementById("lightbox-img").alt = city.name;
+      document.getElementById("lightbox-caption").textContent = city.name;
+      document.getElementById("lightbox").classList.add("open");
+    }
+
+    document.getElementById("lightbox-close").addEventListener("click", () => {
+      document.getElementById("lightbox").classList.remove("open");
+    });
+
+    document.getElementById("lightbox").addEventListener("click", e => {
+      if (e.target === document.getElementById("lightbox")) {
+        document.getElementById("lightbox").classList.remove("open");
+      }
+    });
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") document.getElementById("lightbox").classList.remove("open");
+    });
+  </script>
+
 </body>
 </html>
