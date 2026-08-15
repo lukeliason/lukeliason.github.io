@@ -24,7 +24,10 @@
       padding: 0 0 5rem;
     }
     .banner {
-      width: 100%;
+      position: relative;
+      left: 50%;
+      margin-left: -50vw;
+      width: 100vw;
       height: 220px;
       overflow: hidden;
       margin-bottom: 3rem;
@@ -40,7 +43,7 @@
     #site-header {
       margin-bottom: 2.5rem;
       padding-bottom: 1.5rem;
-      border-bottom: 1px solid #000;
+
     }
     #site-header h1 {
       font-size: 1.9rem;
@@ -87,7 +90,7 @@
     }
     #globe-hint {
       font-size: 0.78rem;
-      color: #999;
+      color: #000;
       text-align: center;
       margin-top: 0.6rem;
     }
@@ -140,7 +143,7 @@
       bottom: 1.25rem;
       left: 1.75rem;
       font-size: 0.75rem;
-      color: #999;
+      color: #000;
     }
     @media (max-width: 480px) {
       .content { padding: 0 1.25rem; }
@@ -164,10 +167,9 @@
       <a href="map.html" class="active">Map</a>
     </nav>
     <section id="map">
-      <h2>map</h2>
       <p id="map-description">Click to see photos from my travels</p>
       <div id="globe-container"></div>
-      <p id="globe-hint">zoom and browse as you please</p>
+      <p id="globe-hint">drag to rotate &middot; scroll to zoom</p>
     </section>
   </div>
   <footer><p>updated 8-14-26</p></footer>
@@ -208,10 +210,10 @@
     const width  = Math.min(560, container.offsetWidth);
     const height = width;
     const baseRadius = width * 0.46;
-    let currentScale = baseRadius;
+    let currentZoomK = 1; // tracks zoom multiplier for sensitivity scaling
 
     const projection = d3.geoOrthographic()
-      .scale(currentScale)
+      .scale(baseRadius)
       .translate([width / 2, height / 2])
       .clipAngle(90)
       .rotate([30, -20]);
@@ -236,18 +238,8 @@
       .attr("cx", width / 2)
       .attr("cy", height / 2)
       .attr("r", baseRadius)
-      .attr("fill", "#f4f3f0")
-      .attr("stroke", "#aaa")
-      .attr("stroke-width", 0.5);
-
-    // Graticule
-    const graticule = d3.geoGraticule().step([20, 20]);
-    const graticuleEl = svg.append("path")
-      .datum(graticule())
-      .attr("d", path)
-      .attr("fill", "none")
-      .attr("stroke", "#bbb")
-      .attr("stroke-width", 0.5);
+      .attr("fill", "#faf9f7")
+      .attr("stroke", "none");
 
     // Land
     const landEl = svg.append("path")
@@ -279,13 +271,12 @@
           .attr("class", "city-dot")
           .attr("cx", proj[0])
           .attr("cy", proj[1])
-          .attr("r", Math.max(3, 5 * (currentScale / baseRadius)))
+          .attr("r", Math.max(4, 6 / Math.sqrt(currentZoomK)))
           .on("click", () => openLightbox(city));
       });
     }
 
     function redraw() {
-      graticuleEl.attr("d", path);
       landEl.attr("d", path);
       // update sphere clip and background radius to match scale
       const r = projection.scale();
@@ -303,7 +294,8 @@
       })
       .on("drag", event => {
         if (!dragStart) return;
-        const sensitivity = 0.3;
+        // divide by currentZoomK so dragging slows proportionally as you zoom in
+        const sensitivity = 0.3 / currentZoomK;
         projection.rotate([
           rotateStart[0] + (event.x - dragStart[0]) * sensitivity,
           rotateStart[1] - (event.y - dragStart[1]) * sensitivity
@@ -312,12 +304,12 @@
       })
     );
 
-    // ── Scroll to zoom ──
+    // ── Scroll to zoom — minimum 1 prevents zooming out past default ──
     svg.call(d3.zoom()
-      .scaleExtent([0.5, 8])
+      .scaleExtent([1, 8])
       .on("zoom", event => {
-        currentScale = baseRadius * event.transform.k;
-        projection.scale(currentScale);
+        currentZoomK = event.transform.k;
+        projection.scale(baseRadius * currentZoomK);
         redraw();
       })
     );
