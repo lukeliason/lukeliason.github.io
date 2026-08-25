@@ -128,7 +128,7 @@
         Aside from my research, I spend my time cooking, running, or reading.
         I am an avid reader of Wikipedia, where I spend much of my free time reading about history, art,
         or anything else that catches my interest. 
-        <br><a href="https://en.wikipedia.org/wiki/Lady_of_Elche" target="_blank" rel="noopener noreferrer">Here</a> is an article I found interesting recently.
+        <br><a id="wiki-link" href="#" target="_blank" rel="noopener noreferrer">Here</a> is an article I found interesting recently.
         <br>I also enjoy language learning, as well as playing the piano and the <a href="https://en.wikipedia.org/wiki/Carillon" target="_blank" rel=noopener noreferrer">carillon</a>.
       </p>
       <p class="arabic" lang="ar">
@@ -137,5 +137,15 @@
     </section>
   </div>
   <footer><p>updated 8-21-26</p></footer>
+  <script>
+  const articles = [
+    "https://en.wikipedia.org/wiki/Lady_of_Elche",
+    "https://en.wikipedia.org/wiki/Portrait_of_the_Four_Tetrarchs",
+    "https://en.wikipedia.org/wiki/Hurrian_foundation_pegs",
+  ];
+
+  const link = document.getElementById("wiki-link");
+  link.href = articles[Math.floor(Math.random() * articles.length)];
+</script>
 </body>
 </html>
